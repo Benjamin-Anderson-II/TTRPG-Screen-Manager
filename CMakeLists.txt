@@ -32,9 +32,13 @@ FetchContent_MakeAvailable(glfw glad)
 
 glad_add_library(glad_gl_core_46 STATIC REPRODUCIBLE LOADER API gl:core=4.6)
 
+file(GLOB SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+)
 
 add_executable(App
-    src/main.cpp
+    ${SOURCES}
 )
 
 target_link_libraries(App PRIVATE
