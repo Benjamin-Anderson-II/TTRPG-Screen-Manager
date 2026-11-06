@@ -31,7 +31,7 @@ It gives me more freedom to play how I want, where I want.
 
 ## Next Steps
 Here I'll give a small checklist of next-steps, checking them off with dates as I complete them.
-1. Create a blank window \[Completed 11/5/26]
+1. <s>Create a blank window</s> \[Completed 11/5/26]
    - This will be referred to as the "table window"
 2. Create a second window
    - This will be referred to as the "GM window"
