@@ -1,0 +1,9 @@
+# not source code? then I don't care
+build/
+debug/
+
+# lsp info
+.clangd
+
+# compile script
+make
