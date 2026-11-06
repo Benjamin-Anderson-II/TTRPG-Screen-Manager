@@ -33,7 +33,7 @@ It gives me more freedom to play how I want, where I want.
 Here I'll give a small checklist of next-steps, checking them off with dates as I complete them.
 1. <s>Create a blank window</s> \[Completed 11/5/26]
    - This will be referred to as the "table window"
-2. Create a second window
+2. <s>Create a second window</s> \[Completed 11/5/26]
    - This will be referred to as the "GM window"
 3. Print an image to the table window
 4. Allow the GM window to open images and display them on the table window

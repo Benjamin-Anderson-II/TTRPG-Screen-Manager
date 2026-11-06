@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <cstdint>
 #include <format>
 #include <string>
 #include <optional>
@@ -13,6 +12,9 @@
 
 #define LOG_FILE_NAME "debug/tabletop.log"
 std::ofstream logFile;
+
+#define WIN_DEFAULT_WIDTH 800
+#define WIN_DEFAULT_HEIGHT 600
 
 static void GLFWErrorCallback(int err, const char *desc) {
     logFile << "GLFW ERROR = " << err << ": '" << desc << "'\n";
@@ -31,17 +33,11 @@ void log_message(std::format_string<Args...> fmt, Args&&... args){
 
 
 
-class Window {
-    static constexpr uint32_t WIDTH = 800;
-    static constexpr uint32_t HEIGHT = 600;
-
-public:
+struct Window {
     struct M {
         GLFWwindow *window;
     } m;
     explicit Window(M m) : m(std::move(m)) {}
-
-    static std::optional<Window> create();
     Window(const Window& other)
         : m(other.m)
     {}
@@ -51,10 +47,14 @@ public:
         other.m.window = nullptr;
     }
 
+    /* Member Functions */
+    static std::optional<Window> create(std::string);
+    void render();
+
     ~Window();
 };
 
-std::optional<Window> Window::create(){
+std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -63,7 +63,7 @@ std::optional<Window> Window::create(){
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Tabletop", nullptr, nullptr);
+    window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
         glfwTerminate();
         return std::nullopt;
@@ -82,6 +82,11 @@ std::optional<Window> Window::create(){
     return Window(M{
         .window = std::move(window),
     });
+}
+
+void Window::render() {
+    glfwMakeContextCurrent(m.window);
+    glfwSwapBuffers(m.window);
 }
 
 Window::~Window() {
@@ -113,12 +118,17 @@ void app_terminate() {
 int main(int argc, const char *argv[]) {
     app_init();
 
-    std::optional<Window> app_o = Window::create();
-    if(app_o == std::nullopt) return 1;
-    Window app = app_o.value();
+    std::optional<Window> o_PCWin = Window::create("Players");
+    if(o_PCWin == std::nullopt) return 1;
+    Window PCWin = o_PCWin.value();
 
-    while(!glfwWindowShouldClose(app.m.window)){
-        glfwSwapBuffers(app.m.window);
+    std::optional<Window> o_GMWin = Window::create("Game Master");
+    if(o_GMWin == std::nullopt) return 1;
+    Window GMWin = o_GMWin.value();
+
+    while(!glfwWindowShouldClose(PCWin.m.window) && !glfwWindowShouldClose(GMWin.m.window)){
+        GMWin.render();
+        PCWin.render();
         glfwPollEvents();
     }
 
