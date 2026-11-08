@@ -2,11 +2,12 @@
 #include "GLFW/glfw3.h"
 #include "callbacks.h"
 #include "log.h"
+#include <sstream>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <glad/gl.h>
-#include <sstream>
+#include <stb_image.h>
 
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
@@ -18,7 +19,7 @@ std::optional<Window> Window::create(std::string winName){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
@@ -29,6 +30,7 @@ std::optional<Window> Window::create(std::string winName){
     }
 
     glfwSetKeyCallback(window, GLFWKeyCallback);
+    glfwSetFramebufferSizeCallback(window, GLFWRFrameBufferSizeCallback);
 
     glfwMakeContextCurrent(window);
     auto version = gladLoadGL(glfwGetProcAddress);
@@ -53,13 +55,15 @@ std::optional<Window> Window::create(std::string winName){
 }
 
 const float vertex_data[] = {
-    -.5f,  .5f, // top left
-    -.5f, -.5f, // bottom left
-     .5f, -.5f, // bottom right
-     .5f,  .5f, // top right
+     1.f,  1.f, 1.f, 1.f, // top right
+     1.f, -1.f, 1.f, 0.f, // bottom right
+    -1.f, -1.f, 0.f, 0.f, // bottom left
+    -1.f,  1.f, 0.f, 1.f, // top left
 };
 
 GLuint index_data[] = { 0, 1, 2, 0, 2, 3 };
+
+const float border_color[] = {1.f,1.f,0.f,1.f};
 
 std::string readFileToString(const std::string& fname) {
     std::ifstream file(fname);
@@ -103,12 +107,14 @@ void Window::move(Window& other) {
     m.window = other.m.window;
     m.name = other.m.name;
     m.vbo = other.m.vbo;
+    m.ebo = other.m.ebo;
     m.vao = other.m.vao;
     m.program = other.m.program;
 
     other.m.window = nullptr;
     other.m.name = nullptr;
     other.m.vbo = 0;
+    other.m.ebo = 0;
     other.m.vao = 0;
     other.m.program = 0;
 }
@@ -116,12 +122,14 @@ void Window::move(std::optional<Window>& other) {
     m.window = other.value().m.window;
     m.name = other.value().m.name;
     m.vbo = other.value().m.vbo;
+    m.ebo = other.value().m.ebo;
     m.vao = other.value().m.vao;
     m.program = other.value().m.program;
 
     other.value().m.window = nullptr;
     other.value().m.name = nullptr;
     other.value().m.vbo = 0;
+    other.value().m.ebo = 0;
     other.value().m.vao = 0;
     other.value().m.program = 0;
     other = std::nullopt;
@@ -129,7 +137,7 @@ void Window::move(std::optional<Window>& other) {
 
 void Window::stage() {
     glfwMakeContextCurrent(m.window);
-    log_message("{}: Staging.", (void*)m.window);
+    log_message("{}: Staging.", m.name);
 
     glCreateBuffers(1, &m.vbo);
     if(glIsBuffer(m.vbo) == GL_FALSE){
@@ -143,12 +151,40 @@ void Window::stage() {
 
     glCreateVertexArrays(1, &m.vao);
     glVertexArrayElementBuffer(m.vao, m.ebo);
-    glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, 2*sizeof(float));
+    glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, 4*sizeof(float));
     glVertexArrayBindingDivisor(m.vao, 0, 0);
 
     glVertexArrayAttribBinding(m.vao, 0, 0);
     glVertexArrayAttribFormat(m.vao, 0, 2, GL_FLOAT, GL_FALSE, 0);
     glEnableVertexArrayAttrib(m.vao, 0);
+
+    glVertexArrayAttribBinding(m.vao, 1, 0);
+    glVertexArrayAttribFormat(m.vao, 1, 2, GL_FLOAT, GL_TRUE, 2*sizeof(float));
+    glEnableVertexArrayAttrib(m.vao, 1);
+
+    GLuint texture;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+    if(data) {
+        glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTextureSubImage2D(texture, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
+        glBindTextureUnit(0, texture);
+        // glGenerateTextureMipmap(texture);
+    } else {
+        log_message("Error: Failed to load texture: {}", "textures/container.jpg");
+    }
+    stbi_image_free(data);
 
     GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER, readFileToString("src/shaders/player_vertex.glsl").c_str());
     GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER, readFileToString("src/shaders/player_fragment.glsl").c_str());
@@ -176,7 +212,7 @@ void Window::stage() {
     // glDeleteShader(vertex_shader);
     // glDeleteShader(fragment_shader);
 
-    // glDrawBuffer(GL_BACK);
+    glDrawBuffer(GL_BACK);
     glClearColor(1,0,0,1);
 
     glUseProgram(m.program);
@@ -187,7 +223,13 @@ void Window::render() {
     glfwMakeContextCurrent(m.window);
     // TODO: figure out how big the quad should be HERE
 
-    glViewport(0, 0, WIN_DEFAULT_HEIGHT, WIN_DEFAULT_HEIGHT);
+    int vx, vy;
+    glfwGetFramebufferSize(m.window, &vx, &vy);
+    GLsizei v = vx < vy ? vx : vy;
+    GLint xl = (vx-v)/2;
+    GLint yb = (vy-v)/2;
+    glViewport(xl,yb,v,v);
+
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 

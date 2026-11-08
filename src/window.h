@@ -34,6 +34,7 @@ public:
         other.m.window  = nullptr;
         other.m.name    = nullptr;
         other.m.vbo     = 0;
+        other.m.ebo     = 0;
         other.m.vao     = 0;
         other.m.program = 0;
         // other.m.vertShader = nullptr;
@@ -46,6 +47,7 @@ public:
         m.window = other.m.window;
         m.name = other.m.name;
         m.vbo = other.m.vbo;
+        m.ebo = other.m.ebo;
         m.vao = other.m.vao;
         m.program = other.m.program;
         return *this;

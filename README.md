@@ -35,5 +35,5 @@ Here I'll give a small checklist of next-steps, checking them off with dates as 
    - This will be referred to as the "table window"
 2. <s>Create a second window</s> \[Completed 11/5/26]
    - This will be referred to as the "GM window"
-3. Print an image to the table window
+3. <s>Print an image to the table window</s>
 4. Allow the GM window to open images and display them on the table window
