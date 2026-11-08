@@ -9,7 +9,7 @@ project(Tabletop C CXX)
 
 include(FetchContent)
 
-set(GLFW_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
@@ -28,9 +28,17 @@ FetchContent_Declare(glad
     GIT_SHALLOW    TRUE
     SOURCE_SUBDIR  cmake
 )
-FetchContent_MakeAvailable(glfw glad)
+FetchContent_Declare(stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG        4e9b368bfc071e97206ea5c6adba68dd0cbf8897 # Most recent [Nov. 7, 26]
+    GIT_PROGRESS   TRUE
+)
+FetchContent_MakeAvailable(glfw glad stb)
 
 glad_add_library(glad_gl_core_46 STATIC REPRODUCIBLE LOADER API gl:core=4.6)
+
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE ${stb_SOURCE_DIR})
 
 file(GLOB SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -46,4 +54,5 @@ add_executable(App
 target_link_libraries(App PRIVATE
     glad_gl_core_46
     glfw
+    stb_image
 )
