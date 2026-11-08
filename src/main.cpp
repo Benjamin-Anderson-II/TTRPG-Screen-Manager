@@ -1,51 +1,92 @@
 #include <optional>
 #include <iostream>
+#include <fstream>
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 #define GLW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include "utils.h"
 #include "window.h"
 #include "callbacks.h"
+#include "log.h"
 
-bool app_init() {
-    logFile.open(LOG_FILE_NAME);
-    if(!logFile.is_open()){
-        std::cerr << "Could not open Log File. Aborting.\n";
-        return 1;
+/* Have to define the extern variable somewhere */
+std::ofstream logFile;
+
+/* 
+ * I can't define App like I do with all of my other classes,
+ * since a call to the destructor would terminate glfw.
+ * As such i'm adopting the C++ standard way of initializing a
+ * class, even if it technically comes at the cost of weaker
+ * invariances.
+ */
+class App {
+    Window *PCWin;
+    Window *GMWin;
+public:
+    App();
+    void launch();
+    ~App();
+};
+
+App::App() {
+    logFile.open(LOG_FILE_PATH);
+    if(!logFile.is_open()) {
+        std::cerr << "Fatal Error: Unable to open log file: " << LOG_FILE_PATH << std::endl;
+        exit(1);
     }
+    log_message("Log File Opened!");
 
     glfwSetErrorCallback(GLFWErrorCallback);
+    logFile << "GLFW: Set Error Callback\n";
 
     if(!glfwInit())
-        return false;
+        exit(1);
 
-    return true;
+    /* Try as I might I can't get normal move semantics to work here,
+     * so I'm making my own move function... */
+
+    std::optional<Window> o_PCWin = Window::create("Player");
+    if(o_PCWin == std::nullopt){
+        log_message("Failed to Create Player Window");
+        exit(1);
+    }
+    PCWin = (Window *)malloc(sizeof(Window));
+    PCWin->move(o_PCWin.value());
+    o_PCWin = std::nullopt;
+
+    std::optional<Window> o_GMWin = Window::create("Game Master");
+    if(o_GMWin == std::nullopt){
+        log_message("Failed to Create Game Master Window");
+        exit(1);
+    }
+    GMWin = (Window *)malloc(sizeof(Window));
+    GMWin->move(o_GMWin.value());
+    o_GMWin = std::nullopt;
+
+    log_message("App: OpenGL Version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 }
-void app_terminate() {
+
+void App::launch(){
+    log_message("Launching App");
+    PCWin->stage();
+
+    while(!glfwWindowShouldClose(PCWin->window()) && !glfwWindowShouldClose(GMWin->window())){
+        GMWin->render();
+        PCWin->render();
+        glfwPollEvents();
+    }
+}
+
+App::~App() {
     glfwTerminate();
     logFile.close();
 }
 
 int main(int argc, const char *argv[]) {
-    app_init();
-
-    std::optional<Window> o_PCWin = Window::create("Players");
-    if(o_PCWin == std::nullopt) return 1;
-    Window PCWin = o_PCWin.value();
-
-    std::optional<Window> o_GMWin = Window::create("Game Master");
-    if(o_GMWin == std::nullopt) return 1;
-    Window GMWin = o_GMWin.value();
-
-    while(!glfwWindowShouldClose(PCWin.m.window) && !glfwWindowShouldClose(GMWin.m.window)){
-        GMWin.render();
-        PCWin.render();
-        glfwPollEvents();
-    }
-
-    app_terminate();
+    std::cout << "Starting Application\n";
+    App app;
+    app.launch();
     return 0;
 }

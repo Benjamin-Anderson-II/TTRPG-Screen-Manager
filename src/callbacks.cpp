@@ -1,11 +1,15 @@
-#include "utils.h"
 #include "callbacks.h"
+#include "log.h"
 
 void GLFWErrorCallback(int err, const char *desc) {
-    logFile << "GLFW ERROR = " << err << ": '" << desc << "'\n";
+    log_message("GLFW ERROR: {}: {}", err, desc);
 }
 
 void GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userProgram){
+    log_message("OpenGL Debug Message: {}", message);
 }

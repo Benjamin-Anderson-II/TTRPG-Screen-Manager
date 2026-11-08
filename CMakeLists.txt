@@ -37,6 +37,8 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
+add_compile_options("-g")
+
 add_executable(App
     ${SOURCES}
 )
