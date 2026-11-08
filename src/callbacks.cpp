@@ -15,6 +15,6 @@ void GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
     log_message("OpenGL Debug Message: {}", message);
 }
 
-void GLFWRFrameBufferSizeCallback(GLFWwindow *window, int width, int height){
-    glViewport(0,0,width,height);
-}
+// void GLFWRFrameBufferSizeCallback(GLFWwindow *window, int width, int height){
+//     glViewport(0,0,width,height);
+// }
