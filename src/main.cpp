@@ -53,8 +53,7 @@ App::App() {
         exit(1);
     }
     PCWin = (Window *)malloc(sizeof(Window));
-    PCWin->move(o_PCWin.value());
-    o_PCWin = std::nullopt;
+    PCWin->move(o_PCWin);
 
     std::optional<Window> o_GMWin = Window::create("Game Master");
     if(o_GMWin == std::nullopt){
@@ -62,8 +61,7 @@ App::App() {
         exit(1);
     }
     GMWin = (Window *)malloc(sizeof(Window));
-    GMWin->move(o_GMWin.value());
-    o_GMWin = std::nullopt;
+    GMWin->move(o_GMWin);
 
     log_message("App: OpenGL Version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 }

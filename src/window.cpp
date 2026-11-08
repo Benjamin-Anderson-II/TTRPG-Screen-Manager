@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <glad/gl.h>
+#include <sstream>
 
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
@@ -60,25 +61,19 @@ const float vertex_data[] = {
      .5f,  .5f, // top right
 };
 
-constexpr const char *VERTEX_SHADER_SRC = R"(
-#version 460 core
+std::string readFileToString(const std::string& fname) {
+    std::ifstream file(fname);
+    if(!file.is_open()){
+        log_message("Error: Failed to load shader file: {}", fname);
+        return "";
+    }
 
-layout (location = 0) in vec2 a_pos;
+    std::stringstream ss;
+    ss << file.rdbuf();
+    file.close();
 
-void main() {
-    gl_Position = vec4(a_pos, 0.0, 1.0);
+    return ss.str();
 }
-)";
-
-constexpr const char *FRAGMENT_SHADER_SRC = R"(
-#version 460 core
-
-layout (location = 0) out vec4 frag_color;
-
-void main() {
-    frag_color = vec4(1.0);
-}
-)";
 
 GLuint compile_shader(GLenum type, const char *src) {
     GLuint shader = glCreateShader(type);
@@ -117,6 +112,20 @@ void Window::move(Window& other) {
     other.m.vao = 0;
     other.m.program = 0;
 }
+void Window::move(std::optional<Window>& other) {
+    m.window = other.value().m.window;
+    m.name = other.value().m.name;
+    m.vbo = other.value().m.vbo;
+    m.vao = other.value().m.vao;
+    m.program = other.value().m.program;
+
+    other.value().m.window = nullptr;
+    other.value().m.name = nullptr;
+    other.value().m.vbo = 0;
+    other.value().m.vao = 0;
+    other.value().m.program = 0;
+    other = std::nullopt;
+}
 
 void Window::stage() {
     glfwMakeContextCurrent(m.window);
@@ -137,8 +146,8 @@ void Window::stage() {
     glVertexArrayAttribFormat(m.vao, 0, 2, GL_FLOAT, GL_FALSE, 0);
     glEnableVertexArrayAttrib(m.vao, 0);
 
-    GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER, VERTEX_SHADER_SRC);
-    GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER_SRC);
+    GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER, readFileToString("src/shaders/player_vertex.glsl").c_str());
+    GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER, readFileToString("src/shaders/player_fragment.glsl").c_str());
 
     m.program = glCreateProgram();
     glAttachShader(m.program, vertex_shader);

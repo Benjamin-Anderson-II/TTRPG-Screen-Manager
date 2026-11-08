@@ -54,6 +54,7 @@ public:
     static std::optional<Window> create(std::string);
 
     void move(Window&);
+    void move(std::optional<Window>&);
     void stage();
     void render();
 
