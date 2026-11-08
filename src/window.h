@@ -17,6 +17,7 @@ class Window {
         GLFWwindow *window;
         char *name = nullptr;
         GLuint vbo;
+        GLuint ebo;
         GLuint vao;
         GLuint program;
         // GLint  vertShader;

@@ -38,6 +38,7 @@ std::optional<Window> Window::create(std::string winName){
     }
     glfwSwapInterval(1);
 
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(GLDebugCallback, nullptr);
@@ -55,11 +56,10 @@ const float vertex_data[] = {
     -.5f,  .5f, // top left
     -.5f, -.5f, // bottom left
      .5f, -.5f, // bottom right
-
-    -.5f,  .5f, // top left
-     .5f, -.5f, // bottom right
      .5f,  .5f, // top right
 };
+
+GLuint index_data[] = { 0, 1, 2, 0, 2, 3 };
 
 std::string readFileToString(const std::string& fname) {
     std::ifstream file(fname);
@@ -138,7 +138,11 @@ void Window::stage() {
     }
     glNamedBufferStorage(m.vbo, sizeof(vertex_data), vertex_data, 0);
 
+    glCreateBuffers(1, &m.ebo);
+    glNamedBufferStorage(m.ebo, sizeof(index_data), index_data, 0);
+
     glCreateVertexArrays(1, &m.vao);
+    glVertexArrayElementBuffer(m.vao, m.ebo);
     glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, 2*sizeof(float));
     glVertexArrayBindingDivisor(m.vao, 0, 0);
 
@@ -185,7 +189,7 @@ void Window::render() {
 
     glViewport(0, 0, WIN_DEFAULT_HEIGHT, WIN_DEFAULT_HEIGHT);
     glClear(GL_COLOR_BUFFER_BIT);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     // TODO: potentially free the quad's vertex data HERE
 
@@ -199,6 +203,8 @@ Window::~Window() {
         free(m.name);
     if(m.vbo && glIsBuffer(m.vbo))
         glDeleteBuffers(1, &m.vbo);
+    if(m.ebo && glIsBuffer(m.ebo))
+        glDeleteBuffers(1, &m.ebo);
     if(m.vao && glIsVertexArray(m.vao))
         glDeleteVertexArrays(1, &m.vao);
     if(m.program && glIsProgram(m.program))
