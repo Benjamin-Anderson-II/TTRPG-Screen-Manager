@@ -9,6 +9,7 @@
 #include <glad/gl.h>
 #include <stb_image.h>
 
+/* Constructor */
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
     char *name = static_cast<char *>(std::malloc(winName.size() + 1));
@@ -24,6 +25,7 @@ std::optional<Window> Window::create(std::string winName){
 
     window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
+        free(name);
         glfwTerminate();
         return std::nullopt;
     }
@@ -34,6 +36,7 @@ std::optional<Window> Window::create(std::string winName){
     glfwMakeContextCurrent(window);
     auto version = gladLoadGL(glfwGetProcAddress);
     if(!version){
+        free(name);
         glfwTerminate();
         return std::nullopt;
     }
@@ -51,6 +54,38 @@ std::optional<Window> Window::create(std::string winName){
         .window = std::move(window),
         .name   = std::move(name),
     });
+}
+/* Copy Constructor */
+Window::Window(const Window& other) : m(other.m) {}
+/* Copy Assignment Operator */
+Window& Window::operator=(const Window& other) {
+    if(this == &other)
+        return *this;
+    m = other.m;
+    return *this;
+}
+/* Move Constructor */
+Window::Window(Window&& other) noexcept
+    : m(other.m)
+{
+    other.m.window  = nullptr;
+    other.m.name    = nullptr;
+    other.m.vbo     = 0;
+    other.m.ebo     = 0;
+    other.m.vao     = 0;
+    other.m.program = 0;
+}
+/* Move Assignment Operator */
+Window& Window::operator=(Window&& other) noexcept {
+    m = other.m;
+
+    other.m.window  = nullptr;
+    other.m.name    = nullptr;
+    other.m.vbo     = 0;
+    other.m.ebo     = 0;
+    other.m.vao     = 0;
+    other.m.program = 0;
+    return *this;
 }
 
 const float vertex_data[] = {
@@ -98,40 +133,6 @@ GLuint compile_shader(GLenum type, const char *src) {
     // }
 
     return shader;
-}
-
-/* A syntactic nightmare to be sure, but I'm too
- * annoyed at figuring out move semantics to care */
-void Window::move(Window& other) {
-    m.window = other.m.window;
-    m.name = other.m.name;
-    m.vbo = other.m.vbo;
-    m.ebo = other.m.ebo;
-    m.vao = other.m.vao;
-    m.program = other.m.program;
-
-    other.m.window = nullptr;
-    other.m.name = nullptr;
-    other.m.vbo = 0;
-    other.m.ebo = 0;
-    other.m.vao = 0;
-    other.m.program = 0;
-}
-void Window::move(std::optional<Window>& other) {
-    m.window = other.value().m.window;
-    m.name = other.value().m.name;
-    m.vbo = other.value().m.vbo;
-    m.ebo = other.value().m.ebo;
-    m.vao = other.value().m.vao;
-    m.program = other.value().m.program;
-
-    other.value().m.window = nullptr;
-    other.value().m.name = nullptr;
-    other.value().m.vbo = 0;
-    other.value().m.ebo = 0;
-    other.value().m.vao = 0;
-    other.value().m.program = 0;
-    other = std::nullopt;
 }
 
 void Window::stage() {
@@ -230,7 +231,8 @@ void Window::render() {
     glViewport(xl,yb,v,v);
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    if(m.vao)
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     // TODO: potentially free the quad's vertex data HERE
 

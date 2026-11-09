@@ -20,44 +20,18 @@ class Window {
         GLuint ebo;
         GLuint vao;
         GLuint program;
-        // GLint  vertShader;
-        // GLint  fragShader;
     } m;
     explicit Window(M m) : m(std::move(m)) {}
 public:
-    Window(const Window& other)
-        : m(other.m)
-    {}
-    Window(Window&& other) noexcept
-        : m(other.m)
-    {
-        other.m.window  = nullptr;
-        other.m.name    = nullptr;
-        other.m.vbo     = 0;
-        other.m.ebo     = 0;
-        other.m.vao     = 0;
-        other.m.program = 0;
-        // other.m.vertShader = nullptr;
-        // other.m.fragShader = nullptr;
-    }
-    Window& operator=(const Window& other) {
-        if(this == &other)
-            return *this;
-        // m = other.m;
-        m.window = other.m.window;
-        m.name = other.m.name;
-        m.vbo = other.m.vbo;
-        m.ebo = other.m.ebo;
-        m.vao = other.m.vao;
-        m.program = other.m.program;
-        return *this;
-    }
-
-    /* Member Functions */
     static std::optional<Window> create(std::string);
 
-    void move(Window&);
-    void move(std::optional<Window>&);
+    Window(const Window& other);
+    Window& operator=(const Window& other);
+
+    Window(Window&& other) noexcept;
+    Window& operator=(Window&& other) noexcept;
+
+    /* Member Functions */
     void stage();
     void render();
 
