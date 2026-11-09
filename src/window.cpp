@@ -12,10 +12,6 @@
 /* Constructor */
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
-    char *name = static_cast<char *>(std::malloc(winName.size() + 1));
-    if(!name) return std::nullopt;
-    std::memcpy(name, winName.data(), winName.size());
-    name[winName.size()] = 0;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -25,7 +21,7 @@ std::optional<Window> Window::create(std::string winName){
 
     window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
-        free(name);
+        // free(name);
         glfwTerminate();
         return std::nullopt;
     }
@@ -36,7 +32,7 @@ std::optional<Window> Window::create(std::string winName){
     glfwMakeContextCurrent(window);
     auto version = gladLoadGL(glfwGetProcAddress);
     if(!version){
-        free(name);
+        // free(name);
         glfwTerminate();
         return std::nullopt;
     }
@@ -52,7 +48,7 @@ std::optional<Window> Window::create(std::string winName){
 
     return Window(M{
         .window = std::move(window),
-        .name   = std::move(name),
+        .name   = std::move(winName),
     });
 }
 /* Copy Constructor */
@@ -69,7 +65,7 @@ Window::Window(Window&& other) noexcept
     : m(other.m)
 {
     other.m.window  = nullptr;
-    other.m.name    = nullptr;
+    other.m.name    = {};
     other.m.vbo     = 0;
     other.m.ebo     = 0;
     other.m.vao     = 0;
@@ -80,7 +76,7 @@ Window& Window::operator=(Window&& other) noexcept {
     m = other.m;
 
     other.m.window  = nullptr;
-    other.m.name    = nullptr;
+    other.m.name    = {};
     other.m.vbo     = 0;
     other.m.ebo     = 0;
     other.m.vao     = 0;
@@ -180,7 +176,6 @@ void Window::stage() {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTextureSubImage2D(texture, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
         glBindTextureUnit(0, texture);
-        // glGenerateTextureMipmap(texture);
     } else {
         log_message("Error: Failed to load texture: {}", "textures/container.jpg");
     }
@@ -221,7 +216,6 @@ void Window::stage() {
 
 void Window::render() {
     glfwMakeContextCurrent(m.window);
-    // TODO: figure out how big the quad should be HERE
 
     int vx, vy;
     glfwGetFramebufferSize(m.window, &vx, &vy);
@@ -234,16 +228,12 @@ void Window::render() {
     if(m.vao)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    // TODO: potentially free the quad's vertex data HERE
-
     glfwSwapBuffers(m.window);
 }
 
 Window::~Window() {
     if(m.window)
         glfwDestroyWindow(m.window);
-    if(m.name)
-        free(m.name);
     if(m.vbo && glIsBuffer(m.vbo))
         glDeleteBuffers(1, &m.vbo);
     if(m.ebo && glIsBuffer(m.ebo))
@@ -252,9 +242,4 @@ Window::~Window() {
         glDeleteVertexArrays(1, &m.vao);
     if(m.program && glIsProgram(m.program))
         glDeleteProgram(m.program);
-
-    // if(m.vertShader)
-    //     glDeleteShader(*m.vertShader);
-    // if(m.fragShader)
-    //     glDeleteShader(*m.fragShader);
 }

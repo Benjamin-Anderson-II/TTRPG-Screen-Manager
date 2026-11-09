@@ -15,7 +15,7 @@
 class Window {
     struct M {
         GLFWwindow *window;
-        char *name = nullptr;
+        std::string name = {};
         GLuint vbo;
         GLuint ebo;
         GLuint vao;
@@ -36,7 +36,7 @@ public:
     void render();
 
     GLFWwindow *window() { return m.window; }
-    char *name() { return m.name; }
+    std::string name() { return m.name; }
 
     ~Window();
 };
