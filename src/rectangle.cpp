@@ -77,7 +77,31 @@ std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float he
         .x = x,
         .y = y,
         .program = program,
+        .vertex_shader = vertex_shader,
+        .fragment_shader = fragment_shader,
     });
+}
+
+bool Rectangle::changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
+    std::string str_vertex_src = _readFile2String(vertexShaderPath);
+    const char *vertex_src = str_vertex_src.c_str();
+    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_src, nullptr);
+    glCompileShader(vertex_shader);
+
+    std::string str_fragment_src = _readFile2String(fragmentShaderPath);
+    const char *fragment_src = str_fragment_src.c_str();
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_src, nullptr);
+    glCompileShader(fragment_shader);
+    glDetachShader(m.program, m.vertex_shader);
+    glDetachShader(m.program, m.fragment_shader);
+    glAttachShader(m.program, vertex_shader);
+    glAttachShader(m.program, fragment_shader);
+    glLinkProgram(m.program);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+    return true;
 }
 
 bool Rectangle::draw(GLuint vao) {

@@ -50,7 +50,9 @@ std::optional<App> App::create() {
             goto fail;
         }
         *PCWin = std::move(o_PCWin.value());
+        PCWin->addTexture("textures/container.jpg");
         PCWin->addRectangle_NDC(2,2,-1,-1);
+        PCWin->setRectangleShaders(0, "src/shaders/player_vertex.glsl", "src/shaders/player_fragment.glsl");
     }
     { // Create GMWin
         std::optional<Window> o_GMWin = Window::create("Game Master");

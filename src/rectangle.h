@@ -13,6 +13,8 @@ class Rectangle {
         float width, height;
         float x, y;
         GLuint program;
+        GLuint vertex_shader;
+        GLuint fragment_shader;
     } m;
     explicit Rectangle(M m) : m(std::move(m)) {}
 public:
@@ -21,6 +23,7 @@ public:
     // static std::optional<Rectangle> create_pixels(GLuint vao, GLuint width, GLuint height, GLuint x, GLuint y);
     // TODO: implement rule of 5
 
+    bool changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
     bool draw(GLuint vao);
 };
 

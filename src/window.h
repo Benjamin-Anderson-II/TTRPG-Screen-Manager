@@ -20,10 +20,11 @@ class Window {
         GLFWwindow *window;
         std::string name = {};
         std::vector<Rectangle> rectangles;
-        GLuint vbo;
-        GLuint ebo;
+        std::vector<std::pair<GLuint, std::string>> textures;
+        // GLuint vbo;
+        // GLuint ebo;
         GLuint vao;
-        GLuint program;
+        // GLuint program;
     } m;
     explicit Window(M m) : m(std::move(m)) {}
 public:
@@ -38,7 +39,9 @@ public:
     /* Member Functions */
     bool addRectangle_NDC(float width, float height, float x, float y);
     // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
-    void stage();
+    bool addTexture(const char *texturePath);
+    bool setRectangleShaders(GLuint rectIdx, const char *vertexShaderPath, const char *fragmentShaderPath);
+    // void stage();
     void render();
 
     GLFWwindow *window() { return m.window; }
