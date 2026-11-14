@@ -19,7 +19,7 @@ std::optional<Window> Window::create(std::string winName){
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
@@ -29,7 +29,7 @@ std::optional<Window> Window::create(std::string winName){
     }
 
     glfwSetKeyCallback(window, GLFWKeyCallback);
-    // glfwSetFramebufferSizeCallback(window, GLFWRFrameBufferSizeCallback);
+    glfwSetFramebufferSizeCallback(window, GLFWFrameBufferSizeCallback);
 
     glfwMakeContextCurrent(window);
     auto version = gladLoadGL(glfwGetProcAddress);
@@ -157,13 +157,6 @@ Rectangle Window::rectangleAt(GLuint idx) const {
 
 void Window::render() {
     glfwMakeContextCurrent(m.window);
-
-    int vx, vy;
-    glfwGetFramebufferSize(m.window, &vx, &vy);
-    GLsizei v = vx < vy ? vx : vy;
-    GLint xl = (vx-v)/2;
-    GLint yb = (vy-v)/2;
-    glViewport(xl,yb,v,v);
 
     glClear(GL_COLOR_BUFFER_BIT);
     for(auto rect : m.rectangles) {
