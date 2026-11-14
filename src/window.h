@@ -39,7 +39,7 @@ public:
     bool addRectangle_NDC(float width, float height, float x, float y);
     // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
     bool addTexture(const char *texturePath);
-    bool setRectangleShaders(GLuint rectIdx, const char *vertexShaderPath, const char *fragmentShaderPath);
+    Rectangle rectangleAt(GLuint index) const;
     void render();
 
     GLFWwindow *window() { return m.window; }

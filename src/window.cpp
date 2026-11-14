@@ -150,9 +150,9 @@ bool Window::addTexture(const char *texturePath) {
     return true;
 }
 
-bool Window::setRectangleShaders(GLuint rectIdx, const char *vertexShaderPath, const char *fragmentShaderPath) {
-    m.rectangles[rectIdx].changeShaders(vertexShaderPath, fragmentShaderPath);
-    return true;
+Rectangle Window::rectangleAt(GLuint idx) const {
+    // TODO: type checking
+    return m.rectangles[idx];
 }
 
 void Window::render() {
