@@ -12,6 +12,7 @@ class Rectangle {
         // NOTE: might swap with a vertex array if it ends up being easier
         float width, height;
         float x, y;
+        // TODO: Pull out into Shaders class
         GLuint program;
         GLuint vertex_shader;
         GLuint fragment_shader;

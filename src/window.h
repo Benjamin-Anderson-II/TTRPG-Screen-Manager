@@ -19,12 +19,11 @@ class Window {
     struct M {
         GLFWwindow *window;
         std::string name = {};
+        // TODO: pull out into State struct
         std::vector<Rectangle> rectangles;
-        std::vector<std::pair<GLuint, std::string>> textures;
-        // GLuint vbo;
-        // GLuint ebo;
+        // TODO: Implement ability to have multiple textures
+        // std::vector<std::pair<GLuint, std::string>> textures;
         GLuint vao;
-        // GLuint program;
     } m;
     explicit Window(M m) : m(std::move(m)) {}
 public:
@@ -41,7 +40,6 @@ public:
     // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
     bool addTexture(const char *texturePath);
     bool setRectangleShaders(GLuint rectIdx, const char *vertexShaderPath, const char *fragmentShaderPath);
-    // void stage();
     void render();
 
     GLFWwindow *window() { return m.window; }
