@@ -12,12 +12,15 @@
 /* Constructor */
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
+    std::vector<Rectangle> rectangles;
+    GLuint vao;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
@@ -46,9 +49,24 @@ std::optional<Window> Window::create(std::string winName){
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH,   0, nullptr, GL_TRUE);
 
+    // State state = State::create();
+
+    glCreateVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    GLuint ebo;
+    GLuint indicies[6] = { 0,1,2, 3,2,1 };
+    glCreateBuffers(1, &ebo);
+    glNamedBufferStorage(ebo, sizeof(indicies), indicies, 0);
+    glVertexArrayElementBuffer(vao, ebo);
+
+    glDrawBuffer(GL_BACK);
+    glClearColor(1,0,0,1);
+
     return Window(M{
-        .window = std::move(window),
-        .name   = std::move(winName),
+        .window     = std::move(window),
+        .name       = std::move(winName),
+        .rectangles = std::move(rectangles),
+        .vao        = vao,
     });
 }
 /* Copy Constructor */
@@ -83,6 +101,21 @@ Window& Window::operator=(Window&& other) noexcept {
     other.m.program = 0;
     return *this;
 }
+
+bool Window::addRectangle_NDC(float width, float height, float x, float y) {
+    auto rect = Rectangle::create_ndc(m.vao, width, height, x, y);
+    if(rect == std::nullopt)
+        return false;
+    m.rectangles.push_back(rect.value());
+    return true;
+}
+// bool Window::addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y) {
+//     auto rect = Rectangle::create_pixels(m.vao, width, height, x, y);
+//     if(rect == std::nullopt)
+//         return false;
+//     m.rectangles.push_back(rect.value());
+//     return true;
+// }
 
 const float vertex_data[] = {
      1.f,  1.f, 1.f, 1.f, // top right
@@ -225,8 +258,11 @@ void Window::render() {
     glViewport(xl,yb,v,v);
 
     glClear(GL_COLOR_BUFFER_BIT);
-    if(m.vao)
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    for(auto rect : m.rectangles) {
+        rect.draw(m.vao);
+    }
+    // if(m.vao)
+    //     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(m.window);
 }

@@ -9,6 +9,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <vector>
+#include "rectangle.h"
+
 #define WIN_DEFAULT_WIDTH  800
 #define WIN_DEFAULT_HEIGHT 600
 
@@ -16,6 +19,7 @@ class Window {
     struct M {
         GLFWwindow *window;
         std::string name = {};
+        std::vector<Rectangle> rectangles;
         GLuint vbo;
         GLuint ebo;
         GLuint vao;
@@ -32,6 +36,8 @@ public:
     Window& operator=(Window&& other) noexcept;
 
     /* Member Functions */
+    bool addRectangle_NDC(float width, float height, float x, float y);
+    // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
     void stage();
     void render();
 

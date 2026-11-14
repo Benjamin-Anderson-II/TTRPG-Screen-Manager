@@ -43,15 +43,16 @@ std::optional<App> App::create() {
         err_msg = "Fatal Error: App: Failed to Initialize GLFW";
     }
 
-    {
+    { // Create PCWin
         std::optional<Window> o_PCWin = Window::create("Player");
         if(o_PCWin == std::nullopt){
             err_msg = "Fatal Error: App: Failed to Create Player Window";
             goto fail;
         }
         *PCWin = std::move(o_PCWin.value());
+        PCWin->addRectangle_NDC(2,2,-1,-1);
     }
-    {
+    { // Create GMWin
         std::optional<Window> o_GMWin = Window::create("Game Master");
         if(o_GMWin == std::nullopt){
             err_msg = "Fatal Error: App: Failed to Create Game Master Window";
@@ -99,7 +100,7 @@ App& App::operator=(App&& other) noexcept {
 
 void App::launch(){
     log_message("Launching App");
-    m.PCWin->stage();
+    // m.PCWin->stage();
 
     while(!glfwWindowShouldClose(m.PCWin->window()) && !glfwWindowShouldClose(m.GMWin->window())){
         m.GMWin->render();
