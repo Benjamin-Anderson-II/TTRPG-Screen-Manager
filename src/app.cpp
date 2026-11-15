@@ -63,6 +63,8 @@ App::App(App&& other) noexcept {
 }
 // Move Assignment
 App& App::operator=(App&& other) noexcept {
+    if(this == &other)
+        return *this;
     std::swap(other.m.PCWin, m.PCWin);
     std::swap(other.m.GMWin, m.GMWin);
     other.m.is_open = false;
