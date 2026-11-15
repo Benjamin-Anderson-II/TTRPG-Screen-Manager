@@ -22,7 +22,10 @@ public:
     // x and y represent the bottom left corner of the rectangle
     static std::optional<Rectangle> create_ndc(GLuint vao, float width, float height, float x, float y);
     // static std::optional<Rectangle> create_pixels(GLuint vao, GLuint width, GLuint height, GLuint x, GLuint y);
-    // TODO: implement rule of 5
+    Rectangle(const Rectangle&);
+    Rectangle& operator=(const Rectangle&);
+    Rectangle(Rectangle&&) noexcept;
+    Rectangle& operator=(Rectangle&&) noexcept;
 
     bool changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
     bool draw(GLuint vao);

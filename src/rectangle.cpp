@@ -81,6 +81,42 @@ std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float he
         .fragment_shader = fragment_shader,
     });
 }
+Rectangle::Rectangle(const Rectangle& other)
+    : m(other.m)
+{}
+Rectangle& Rectangle::operator=(const Rectangle& other) {
+    m = other.m;
+    return *this;
+}
+Rectangle::Rectangle(Rectangle&& other) noexcept
+    : m(other.m)
+{
+    other.m.vbo = 0;
+    other.m.bindingIdx = 0;
+    other.m.x = 0;
+    other.m.y = 0;
+    other.m.width = 0;
+    other.m.height = 0;
+    other.m.isNDC = false;
+    other.m.program = 0;
+    other.m.vertex_shader = 0;
+    other.m.fragment_shader = 0;
+}
+Rectangle& Rectangle::operator=(Rectangle&& other) noexcept {
+    m = other.m;
+
+    other.m.vbo = 0;
+    other.m.bindingIdx = 0;
+    other.m.x = 0;
+    other.m.y = 0;
+    other.m.width = 0;
+    other.m.height = 0;
+    other.m.isNDC = false;
+    other.m.program = 0;
+    other.m.vertex_shader = 0;
+    other.m.fragment_shader = 0;
+    return *this;
+}
 
 bool Rectangle::changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
     std::string str_vertex_src = _readFile2String(vertexShaderPath);
