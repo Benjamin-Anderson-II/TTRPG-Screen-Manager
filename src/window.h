@@ -18,7 +18,7 @@
 class Window {
     struct M {
         GLFWwindow *window;
-        std::string name = {};
+        std::string name;
         // TODO: pull out into State struct
         std::vector<Rectangle> rectangles;
         // TODO: Implement ability to have multiple textures
@@ -41,8 +41,8 @@ public:
     bool addTexture(const char *texturePath);
     Rectangle rectangleAt(GLuint index) const;
     void render();
+    bool shouldClose();
 
-    GLFWwindow *window() { return m.window; }
     std::string name() { return m.name; }
 
     ~Window();

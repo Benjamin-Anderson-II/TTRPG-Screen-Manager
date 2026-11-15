@@ -170,6 +170,10 @@ void Window::render() {
     glfwSwapBuffers(m.window);
 }
 
+bool Window::shouldClose() {
+    return glfwWindowShouldClose(m.window);
+}
+
 Window::~Window() {
     if(m.window)
         glfwDestroyWindow(m.window);
