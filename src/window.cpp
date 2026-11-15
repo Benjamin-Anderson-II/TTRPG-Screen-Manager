@@ -23,7 +23,6 @@ std::optional<Window> Window::create(std::string winName){
 
     window = glfwCreateWindow(WIN_DEFAULT_WIDTH, WIN_DEFAULT_HEIGHT, winName.c_str(), nullptr, nullptr);
     if(!window){
-        // free(name);
         glfwTerminate();
         return std::nullopt;
     }
@@ -34,7 +33,6 @@ std::optional<Window> Window::create(std::string winName){
     glfwMakeContextCurrent(window);
     auto version = gladLoadGL(glfwGetProcAddress);
     if(!version){
-        // free(name);
         glfwTerminate();
         return std::nullopt;
     }
