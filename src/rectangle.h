@@ -4,6 +4,8 @@
 #include <optional>
 #include <glad/gl.h>
 
+#include "shaders.h"
+
 class Rectangle {
     struct M{
         GLuint vbo;
@@ -13,9 +15,7 @@ class Rectangle {
         float width, height;
         float x, y;
         // TODO: Pull out into Shaders class
-        GLuint program;
-        GLuint vertex_shader;
-        GLuint fragment_shader;
+        Shaders shaders;
     } m;
     explicit Rectangle(M m) : m(std::move(m)) {}
 public:
