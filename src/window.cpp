@@ -79,20 +79,24 @@ Window& Window::operator=(const Window& other) {
     return *this;
 }
 /* Move Constructor */
-Window::Window(Window&& other) noexcept
-    : m(other.m)
-{
-    other.m.window  = nullptr;
-    other.m.name    = {};
-    other.m.vao     = 0;
+Window::Window(Window&& other) noexcept {
+    m.window     = other.m.window;
+    m.vao        = other.m.vao;
+    m.name       = std::move(other.m.name);
+    m.rectangles = std::move(other.m.rectangles);
+
+    other.m.window     = nullptr;
+    other.m.vao        = 0;
 }
 /* Move Assignment Operator */
 Window& Window::operator=(Window&& other) noexcept {
-    m = other.m;
+    m.window     = other.m.window;
+    m.vao        = other.m.vao;
+    m.name       = std::move(other.m.name);
+    m.rectangles = std::move(other.m.rectangles);
 
-    other.m.window  = nullptr;
-    other.m.name    = {};
-    other.m.vao     = 0;
+    other.m.window     = nullptr;
+    other.m.vao        = 0;
     return *this;
 }
 
