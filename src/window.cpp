@@ -102,14 +102,14 @@ bool Window::addRectangle_NDC(float width, float height, float x, float y) {
     auto rect = Rectangle::create_ndc(m.vao, width, height, x, y);
     if(rect == std::nullopt)
         return false;
-    m.rectangles.push_back(rect.value());
+    m.rectangles.push_back(std::move(rect.value()));
     return true;
 }
 // bool Window::addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y) {
 //     auto rect = Rectangle::create_pixels(m.vao, width, height, x, y);
 //     if(rect == std::nullopt)
 //         return false;
-//     m.rectangles.push_back(rect.value());
+//     m.rectangles.push_back(std::move(rect.value()));
 //     return true;
 // }
 
@@ -152,7 +152,7 @@ bool Window::addTexture(const char *texturePath) {
     return true;
 }
 
-Rectangle Window::rectangleAt(GLuint idx) const {
+Rectangle& Window::rectangleAt(GLuint idx) {
     // TODO: type checking
     return m.rectangles[idx];
 }
@@ -161,7 +161,7 @@ void Window::render() {
     glfwMakeContextCurrent(m.window);
 
     glClear(GL_COLOR_BUFFER_BIT);
-    for(auto rect : m.rectangles) {
+    for(Rectangle& rect : m.rectangles) {
         rect.draw(m.vao);
     }
 

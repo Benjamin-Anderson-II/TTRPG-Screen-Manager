@@ -39,7 +39,7 @@ public:
     bool addRectangle_NDC(float width, float height, float x, float y);
     // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
     bool addTexture(const char *texturePath);
-    Rectangle rectangleAt(GLuint index) const;
+    Rectangle& rectangleAt(GLuint index);
     void render();
     bool shouldClose();
 
