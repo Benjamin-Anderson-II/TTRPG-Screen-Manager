@@ -85,6 +85,9 @@ void App::launch(){
 
 App::~App() {
     if(m.is_open){ // moved-from App should not terminate GLFW
+        // Freeing these after causes SEGFAULT
+        m.GMWin.reset();
+        m.PCWin.reset();
         glfwTerminate();
         log_message("GLFW Terminated");
         if(logFile.is_open())
