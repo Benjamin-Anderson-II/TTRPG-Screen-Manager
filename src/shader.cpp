@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "shaders.h"
+#include "shader.h"
 #include "glad/gl.h"
 #include "log.h"
 
@@ -35,7 +35,7 @@ GLuint _createShader(const char *path, GLenum type) {
         std::string errorLog(maxLength, '\0');
         glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
 
-        log_message("Error::Shaders.create() - Failed to create {} shader.",
+        log_message("Error::Shader.create() - Failed to create {} shader.",
                     (type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment");
         if(!maxLength)
             log_message(" -- Info Log Max Length is 0.");
@@ -44,31 +44,22 @@ GLuint _createShader(const char *path, GLenum type) {
         glDeleteShader(shader);
         return 0;
     } else
-        log_message("Log::Shaders.create() - {} Shader at {} Compiled Successfully.",
+        log_message("Log::Shader.create() - {} Shader at {} Compiled Successfully.",
                     (type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment", path);
     return shader;
 }
-Shaders::Shaders(const Shaders& other)
-    : m(other.m)
-{}
-Shaders& Shaders::operator=(const Shaders& other) {
-    if(this == &other)
-        return *this;
-    m = other.m;
-    return *this;
-}
-Shaders::Shaders(Shaders&& other) noexcept
+Shader::Shader(Shader&& other) noexcept
     : m(other.m)
 {
     other.m.programID = 0;
 }
-Shaders& Shaders::operator=(Shaders&& other) noexcept {
+Shader& Shader::operator=(Shader&& other) noexcept {
     m = other.m;
     other.m.programID = 0;
     return *this;
 }
 
-std::optional<Shaders> Shaders::create(const char *vertexShaderPath, const char *fragmentShaderPath) {
+std::optional<Shader> Shader::create(const char *vertexShaderPath, const char *fragmentShaderPath) {
     auto vertex_shader = _createShader(vertexShaderPath, GL_VERTEX_SHADER);
     if(!vertex_shader)
         return std::nullopt;
@@ -85,16 +76,16 @@ std::optional<Shaders> Shaders::create(const char *vertexShaderPath, const char 
     glDetachShader(program, vertex_shader);
     glDetachShader(program, fragment_shader);
 
-    return std::move(Shaders(M {
+    return std::move(Shader(M {
         .programID = program,
     }));
 }
 
-void Shaders::use() noexcept {
+void Shader::use() noexcept {
     glUseProgram(m.programID);
 }
 
-bool Shaders::change(const char *vertexPath, const char *fragmentPath) {
+bool Shader::change(const char *vertexPath, const char *fragmentPath) {
     auto vertex_shader = _createShader(vertexPath, GL_VERTEX_SHADER);
     if(!vertex_shader) return false;
     auto fragment_shader = _createShader(fragmentPath, GL_FRAGMENT_SHADER);
@@ -109,7 +100,7 @@ bool Shaders::change(const char *vertexPath, const char *fragmentPath) {
     return true;
 }
 
-Shaders::~Shaders() {
+Shader::~Shader() {
     if(m.programID)
         glDeleteProgram(m.programID);
 }

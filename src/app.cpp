@@ -37,8 +37,9 @@ std::optional<App> App::create() {
     }
     auto PCWin = std::move(o_PCWin.value());
     PCWin.addTexture("textures/container.jpg");
-    PCWin.addRectangle_NDC(2,2,-1,-1);
-    PCWin.rectangleAt(0).changeShaders("src/shaders/player_vertex.glsl", "src/shaders/player_fragment.glsl");
+    PCWin.addShader("src/shaders/player_vertex.glsl", "src/shaders/player_fragment.glsl");
+    PCWin.addRectangle_NDC(2,2,-1,-1, &PCWin.shaderAt(0));
+    // PCWin.rectangleAt(0).changeShaders("src/shaders/player_vertex.glsl", "src/shaders/player_fragment.glsl");
 
     // Create & Init Game Master Window
     auto o_GMWin = Window::create("Game Master");

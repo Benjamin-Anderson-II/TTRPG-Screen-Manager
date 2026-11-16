@@ -11,7 +11,6 @@
 /* Constructor */
 std::optional<Window> Window::create(std::string winName){
     GLFWwindow *window;
-    std::vector<Rectangle> rectangles;
     GLuint vao;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -63,7 +62,6 @@ std::optional<Window> Window::create(std::string winName){
     return Window(M{
         .window     = std::move(window),
         .name       = std::move(winName),
-        .rectangles = std::move(rectangles),
         .vao        = vao,
     });
 }
@@ -82,6 +80,7 @@ Window::Window(Window&& other) noexcept {
     m.vao        = other.m.vao;
     m.name       = std::move(other.m.name);
     m.rectangles = std::move(other.m.rectangles);
+    m.shaders    = std::move(other.m.shaders);
 
     other.m.window     = nullptr;
     other.m.vao        = 0;
@@ -92,14 +91,15 @@ Window& Window::operator=(Window&& other) noexcept {
     m.vao        = other.m.vao;
     m.name       = std::move(other.m.name);
     m.rectangles = std::move(other.m.rectangles);
+    m.shaders    = std::move(other.m.shaders);
 
     other.m.window     = nullptr;
     other.m.vao        = 0;
     return *this;
 }
 
-bool Window::addRectangle_NDC(float width, float height, float x, float y) {
-    auto rect = Rectangle::create_ndc(m.vao, width, height, x, y);
+bool Window::addRectangle_NDC(float width, float height, float x, float y, Shader *shader) {
+    auto rect = Rectangle::create_ndc(m.vao, width, height, x, y, shader);
     if(rect == std::nullopt)
         return false;
     m.rectangles.push_back(std::move(rect.value()));
@@ -112,6 +112,14 @@ bool Window::addRectangle_NDC(float width, float height, float x, float y) {
 //     m.rectangles.push_back(std::move(rect.value()));
 //     return true;
 // }
+
+bool Window::addShader(const char *vertPath, const char *fragPath) {
+    auto shader = Shader::create(vertPath, fragPath);
+    if(shader == std::nullopt)
+        return false;
+    m.shaders.push_back(std::move(shader.value()));
+    return true;
+}
 
 bool Window::addTexture(const char *texturePath) {
     GLuint texture;
@@ -155,6 +163,10 @@ bool Window::addTexture(const char *texturePath) {
 Rectangle& Window::rectangleAt(GLuint idx) {
     // TODO: type checking
     return m.rectangles[idx];
+}
+Shader& Window::shaderAt(GLuint idx) {
+    // TODO: type checking
+    return m.shaders[idx];
 }
 
 void Window::render() {

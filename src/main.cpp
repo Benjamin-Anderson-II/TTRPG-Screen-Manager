@@ -15,7 +15,8 @@ int main(int argc, const char *argv[]) {
         std::cerr << "Fatal Error: Failed to Create App\n";
         exit(1);
     }
+    auto app = std::move(o_app.value());
 
-    o_app.value().launch();
+    app.launch();
     return 0;
 }

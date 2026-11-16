@@ -4,7 +4,7 @@
 #include <optional>
 #include <glad/gl.h>
 
-#include "shaders.h"
+#include "shader.h"
 
 class Rectangle {
     struct M{
@@ -14,13 +14,12 @@ class Rectangle {
         // NOTE: might swap with a vertex array if it ends up being easier
         float width, height;
         float x, y;
-        // TODO: Pull out into Shaders class
-        Shaders shaders;
+        Shader *shader;
     } m;
     explicit Rectangle(M m) : m(std::move(m)) {}
 public:
     // x and y represent the bottom left corner of the rectangle
-    static std::optional<Rectangle> create_ndc(GLuint vao, float width, float height, float x, float y);
+    static std::optional<Rectangle> create_ndc(GLuint vao, float width, float height, float x, float y, Shader *shader);
     // static std::optional<Rectangle> create_pixels(GLuint vao, GLuint width, GLuint height, GLuint x, GLuint y);
     Rectangle(const Rectangle&);
     Rectangle& operator=(const Rectangle&);

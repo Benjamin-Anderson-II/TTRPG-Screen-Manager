@@ -3,13 +3,14 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <vector>
+#include "shader.h"
 #include "rectangle.h"
 
 #define WIN_DEFAULT_WIDTH  800
@@ -20,6 +21,7 @@ class Window {
         GLFWwindow *window;
         std::string name;
         // TODO: pull out into State struct
+        std::vector<Shader> shaders;
         std::vector<Rectangle> rectangles;
         // TODO: Implement ability to have multiple textures
         // std::vector<std::pair<GLuint, std::string>> textures;
@@ -36,10 +38,12 @@ public:
     Window& operator=(Window&& other) noexcept;
 
     /* Member Functions */
-    bool addRectangle_NDC(float width, float height, float x, float y);
+    bool addRectangle_NDC(float width, float height, float x, float y, Shader *shader);
     // bool addRectangle_Pixel(GLuint width, GLuint height, GLuint x, GLuint y);
+    bool addShader(const char *vertexPath, const char *fragmentPath);
     bool addTexture(const char *texturePath);
     Rectangle& rectangleAt(GLuint index);
+    Shader& shaderAt(GLuint index);
     void render();
     bool shouldClose();
 

@@ -19,7 +19,7 @@ std::string _readFile2String(std::string fname) {
     return ss.str();
 }
 
-std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float height, float x, float y) {
+std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float height, float x, float y, Shader *shaders) {
     GLuint vbo;
     GLuint bindingIdx = 0;
     GLuint vertex_shader, fragment_shader;
@@ -46,14 +46,6 @@ std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float he
     glVertexArrayAttribFormat(vao, 1, 2, GL_FLOAT, GL_TRUE, 2*sizeof(float));
     glEnableVertexArrayAttrib(vao, 1);
 
-    const char *vertexShaderPath = "src/shaders/rectangle_default_vertex.glsl";
-    const char *fragmentShaderPath = "src/shaders/rectangle_default_fragment.glsl";
-    auto shaders = Shaders::create(vertexShaderPath, fragmentShaderPath);
-    if(shaders == std::nullopt) {
-        log_message("Error::Rectangle.create() - Unable to create_shaders");
-        return std::nullopt;
-    }
-
     return std::move(Rectangle(M {
         .vbo = vbo,
         .bindingIdx = bindingIdx,
@@ -62,7 +54,7 @@ std::optional<Rectangle> Rectangle::create_ndc(GLuint vao, float width, float he
         .height = height,
         .x = x,
         .y = y,
-        .shaders = std::move(shaders.value()),
+        .shader = shaders,
     }));
 }
 Rectangle::Rectangle(const Rectangle& other)
@@ -73,7 +65,7 @@ Rectangle& Rectangle::operator=(const Rectangle& other) {
     return *this;
 }
 Rectangle::Rectangle(Rectangle&& other) noexcept
-    : m(std::move(other.m))
+    : m(other.m)
 {
     other.m.vbo = 0;
     other.m.bindingIdx = 0;
@@ -82,9 +74,10 @@ Rectangle::Rectangle(Rectangle&& other) noexcept
     other.m.width = 0;
     other.m.height = 0;
     other.m.isNDC = false;
+    other.m.shader = nullptr;
 }
 Rectangle& Rectangle::operator=(Rectangle&& other) noexcept {
-    m = std::move(other.m);
+    m = other.m;
 
     other.m.vbo = 0;
     other.m.bindingIdx = 0;
@@ -93,17 +86,12 @@ Rectangle& Rectangle::operator=(Rectangle&& other) noexcept {
     other.m.width = 0;
     other.m.height = 0;
     other.m.isNDC = false;
+    other.m.shader = nullptr;
     return *this;
 }
 
-bool Rectangle::changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath) {
-    if(!m.shaders.change(vertexShaderPath, fragmentShaderPath))
-        return false;
-    return true;
-}
-
 bool Rectangle::draw(GLuint vao) {
-    m.shaders.use();
+    m.shader->use();
     glBindBuffer(GL_ARRAY_BUFFER, m.vbo);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     return true;
