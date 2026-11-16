@@ -1,5 +1,4 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <optional>
 #include <string>
@@ -51,5 +50,3 @@ public:
 
     ~Window();
 };
-
-#endif

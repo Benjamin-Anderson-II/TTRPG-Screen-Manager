@@ -1,5 +1,4 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -16,5 +15,3 @@ void log_message(std::format_string<Args...> fmt, Args&&... args) {
     else
         std::cerr << "Panic! Log file is not open!!!\n";
 }
-
-#endif

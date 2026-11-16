@@ -1,5 +1,4 @@
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#pragma once
 
 #include <optional>
 #include <glad/gl.h>
@@ -29,5 +28,3 @@ public:
     bool changeShaders(const char *vertexShaderPath, const char *fragmentShaderPath);
     bool draw(GLuint vao);
 };
-
-#endif

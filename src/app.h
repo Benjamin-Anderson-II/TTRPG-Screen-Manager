@@ -1,5 +1,4 @@
-#ifndef APP_H
-#define APP_H
+#pragma once
 
 #include "window.h"
 #include <memory>
@@ -22,5 +21,3 @@ public:
 
     ~App();
 };
-
-#endif
